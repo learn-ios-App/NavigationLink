@@ -5,41 +5,33 @@ struct Fruit: Hashable {
     var name: String
 }
 
-enum Content: Hashable {
-    case fruit(Fruit)
-    case color
-}
-
 struct ContentView: View {
-    @State private var path = NavigationPath()
+    @State private var path = NavigationPath() // 配列[]で管理する
     var body: some View {
+        //path[]に何が入っているかで画面遷移を管理する
         NavigationStack(path: $path) {
             List {
-                Section {
+                Section("フルーツ") {
                     //リンク先に渡す値のみを決定
                     NavigationLink("リンゴ", value: Fruit(name: "リンゴ"))
                     NavigationLink("オレンジ", value: Fruit(name: "オレンジ"))
                     NavigationLink("バナナ", value: Fruit(name: "バナナ"))
                 }
                 
-                Section {
+                Section("カラ-") {
                     //リンク先に渡す値のみを決定
-                    NavigationLink("レッド", value: Color.red)
-                    NavigationLink("ブルー", value: Color.blue)
-                    NavigationLink("グリーン", value: Color.green)
-                }
-                
-                Section {
-                    NavigationLink("最後の画面", value: "最後")
+                    NavigationLink("ミント", value: Color.mint)
+                    NavigationLink("淡い青", value: Color.teal)
+                    NavigationLink("スカイブルー", value: Color.cyan)
                 }
                 Section {
                     Button(action: {
                         path = NavigationPath()
                         path.append(Fruit(name: "リンゴ"))
-                        path.append(Color.blue)
+                        path.append(Color.cyan)
                         path.append("最後の画面")
                     }) {
-                        Text("遷移")
+                        Text("一気に画面遷移")
                     }
                 }
             }
@@ -50,7 +42,11 @@ struct ContentView: View {
                 color
             }
             .navigationDestination(for: String.self) { text in
-                LastView(text: text, path: $path)
+                LastView(text: text, back: {
+                    path.removeLast()
+                    path.removeLast()
+                    path.removeLast()
+                })
             }
         }
     }
@@ -65,12 +61,10 @@ struct FruitView: View {
 
 struct LastView: View {
     let text: String
-    @Binding var path: NavigationPath
+    let back: () -> Void
     var body: some View {
         Button(action: {
-            path.removeLast()
-            path.removeLast()
-            path.removeLast()
+            back()
         }) {
             Text("最初の画面に戻る")
         }
